@@ -4,6 +4,10 @@ Obsidian plugin untuk mengelola Google Tasks dari side panel. Two-way sync denga
 
 Status: **Fase 0 — OAuth spike** (lihat execution plan).
 
+## Setup
+
+Tutorial lengkap (aktifasi plugin + pembuatan OAuth credential Google): [docs/oauth-setup.md](docs/oauth-setup.md)
+
 ## Development
 
 ```bash
