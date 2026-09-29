@@ -1,0 +1,10 @@
+{
+  "id": "obsidiantask",
+  "name": "Obsidiantask",
+  "version": "0.1.0",
+  "minAppVersion": "1.7.2",
+  "description": "Manage Google Tasks from a side panel in Obsidian. Two-way sync with Google Tasks.",
+  "author": "enlnlnl79",
+  "authorUrl": "https://github.com/enlnlnl79",
+  "isDesktopOnly": true
+}
