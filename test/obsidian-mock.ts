@@ -10,6 +10,13 @@ export class Notice {
   }
 }
 
+export class WorkspaceLeaf {}
+
+export class ItemView {
+  containerEl = { empty() {}, createEl() { return { addEventListener() {} }; }, createDiv() { return { createEl() { return { addEventListener() {}, checked: false }; }, createSpan() {} }; } };
+  constructor(public leaf: WorkspaceLeaf) {}
+}
+
 export class PluginSettingTab {
   containerEl = {
     empty() {},
@@ -50,6 +57,7 @@ export class Plugin {
   register() {}
   registerDomEvent() {}
   registerInterval() {}
+  registerView() {}
   addStatusBarItem() {
     return { setText() {}, setAttribute() {}, el: null };
   }
