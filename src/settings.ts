@@ -23,7 +23,7 @@ export class ObsidiantaskSettingTab extends PluginSettingTab {
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
-    containerEl.createEl("h2", { text: "Obsidiantask" });
+    new Setting(containerEl).setName("TaskBridge").setHeading();
     new Setting(containerEl)
       .setName("Google Client ID")
       .setDesc("OAuth Desktop app Client ID dari Google Cloud Console.")
@@ -56,8 +56,8 @@ export class ObsidiantaskSettingTab extends PluginSettingTab {
         .setButtonText("Manage lists")
         .onClick(() => this.plugin.openListManager()));
     const support = containerEl.createDiv({ cls: "obsidiantask-support" });
-    support.createEl("h3", { text: "Support development" });
-    support.createEl("p", { text: "If you find Obsidiantask useful, please consider supporting its continued development." });
+    new Setting(support).setName("Support development").setHeading();
+    support.createEl("p", { text: "If you find TaskBridge useful, please consider supporting its continued development." });
     const supportActions = support.createDiv({ cls: "obsidiantask-support-actions" });
     const coffee = supportActions.createEl("button", { text: "☕ Buy me a coffee" });
     coffee.addEventListener("click", () => void shell.openExternal("https://buymeacoffee.com/enl69"));

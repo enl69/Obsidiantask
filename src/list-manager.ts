@@ -7,12 +7,12 @@ export class ListManagerModal extends Modal {
   onOpen(): void { this.render(); }
   private render(): void {
     this.titleEl.setText("Manage lists"); const root = this.contentEl; root.empty(); root.addClass("obsidiantask-list-manager");
-    const add = root.createEl("button", { text: "+ Tambah list" }); add.addEventListener("click", () => this.addList());
+    const add = root.createEl("button", { text: "+ Tambah list" }); add.addEventListener("click", () => void this.addList());
     for (const list of this.store.cache.lists) {
       const row = root.createDiv({ cls: "obsidiantask-list-manager-row" });
       const visible = root.createEl("input", { type: "checkbox" }); visible.checked = this.store.cache.visibleLists.includes(list.id); visible.addEventListener("change", () => void this.toggleVisible(list.id, visible.checked));
       row.createSpan({ text: list.title });
-      const edit = row.createEl("button", { text: "Edit" }); edit.addEventListener("click", () => this.rename(list));
+      const edit = row.createEl("button", { text: "Edit" }); edit.addEventListener("click", () => void this.rename(list));
       const remove = row.createEl("button", { text: "Delete" }); remove.addEventListener("click", () => void this.remove(list));
     }
   }

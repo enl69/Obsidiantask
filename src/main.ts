@@ -1,4 +1,4 @@
-import { Notice, Plugin, WorkspaceLeaf } from "obsidian";
+import { Plugin } from "obsidian";
 import { GoogleTasksAuth, type TokenState } from "./auth";
 import { GoogleTasksApi } from "./api";
 import { DEFAULT_SETTINGS, ObsidiantaskSettingTab, type ObsidiantaskSettings } from "./settings";
