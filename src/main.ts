@@ -29,9 +29,7 @@ export default class ObsidiantaskPlugin extends Plugin {
     });
   }
 
-  onunload(): void {
-    void this.auth?.disconnect(false);
-  }
+  onunload(): void {}
 
   async loadSettings(): Promise<void> {
     const data = await this.loadData() as Partial<ObsidiantaskSettings> | null;
