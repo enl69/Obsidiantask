@@ -1,6 +1,7 @@
-import { ItemView, Notice, WorkspaceLeaf } from "obsidian";
+import { ItemView, Modal, Notice, WorkspaceLeaf } from "obsidian";
 import type { GoogleTasksApi, Task, TaskList } from "./api";
 import type { TaskStore } from "./store";
+import { TaskEditorModal } from "./task-editor";
 
 export const VIEW_TYPE = "obsidiantask-view";
 
@@ -14,7 +15,7 @@ export class TasksView extends ItemView {
   getViewType(): string { return VIEW_TYPE; }
   getDisplayText(): string { return "Obsidiantask"; }
   getIcon(): string { return "check-square"; }
-  async onOpen(): Promise<void> { await this.refresh(); }
+  async onOpen(): Promise<void> { this.containerEl.addClass("obsidiantask-view"); await this.refresh(); }
   async refresh(): Promise<void> {
     if (this.busy) return;
     this.busy = true;
@@ -66,15 +67,7 @@ export class TasksView extends ItemView {
     if (task.completed) meta.createSpan({ text: `Selesai ${formatDate(task.completed)}` });
     if (task.parent) meta.createSpan({ text: "Subtask" });
     const favorite = row.createEl("button", { text: this.store.cache.favorites.includes(task.id) ? "★" : "☆" }); favorite.setAttribute("aria-label", "Favorite"); favorite.addEventListener("click", () => void this.toggleFavorite(task.id));
-    const edit = row.createEl("button", { text: "⋯" }); edit.setAttribute("aria-label", "Edit task"); edit.addEventListener("click", () => this.renderEditor(row, task));
-  }
-  private renderEditor(row: HTMLElement, task: Task): void {
-    const editor = row.createDiv({ cls: "obsidiantask-editor" });
-    const title = editor.createEl("input", { type: "text", value: task.title, placeholder: "Judul" });
-    const notes = editor.createEl("textarea", { placeholder: "Deskripsi / catatan" }); notes.value = task.notes ?? "";
-    const due = editor.createEl("input", { type: "date" }); due.value = task.due ? task.due.slice(0, 10) : "";
-    const save = editor.createEl("button", { text: "Simpan" });
-    save.addEventListener("click", () => void this.saveEdit(task, title.value.trim(), notes.value, due.value));
+    const edit = row.createEl("button", { text: "⋯" }); edit.setAttribute("aria-label", "Edit task"); edit.addEventListener("click", () => new TaskEditorModal(this.app, task, (title, notes, due) => void this.saveEdit(task, title, notes, due)).open());
   }
   private async saveEdit(task: Task, title: string, notes: string, due: string): Promise<void> {
     if (!title) return;

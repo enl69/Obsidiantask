@@ -10,6 +10,17 @@ export class Notice {
   }
 }
 
+export class Modal {
+  titleEl = { setText() {} };
+  contentEl = { empty() {}, addClass() {}, createEl() { return { addEventListener() {}, value: "" }; }, createDiv() { return { createEl() { return { addEventListener() {}, value: "" }; } }; } };
+  modalEl = { addClass() {} };
+  constructor(public app: unknown) {}
+  open() { this.onOpen(); }
+  close() { this.onClose(); }
+  onOpen() {}
+  onClose() {}
+}
+
 export class WorkspaceLeaf {}
 
 export class ItemView {
