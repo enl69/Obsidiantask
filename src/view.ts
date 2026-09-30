@@ -62,7 +62,7 @@ export class TasksView extends ItemView {
     if (!visible.length && !completed.length) section.createDiv({ cls: "obsidiantask-list-empty", text: "Belum ada task." });
   }
   private renderTask(root: HTMLElement, task: Task): void {
-    const row = root.createEl("button", { cls: `obsidiantask-task ${task.status === "completed" ? "is-completed" : ""}` });
+    const row = root.createDiv({ cls: `obsidiantask-task ${task.status === "completed" ? "is-completed" : ""}` });
     const checkbox = row.createEl("input", { type: "checkbox" }); checkbox.checked = task.status === "completed"; checkbox.addEventListener("change", () => void this.toggleTask(task, checkbox.checked));
     const content = row.createDiv({ cls: "obsidiantask-task-content" }); content.createDiv({ cls: "obsidiantask-task-title", text: task.title || "Tanpa judul" });
     if (task.notes) content.createDiv({ cls: "obsidiantask-task-notes", text: task.notes });
@@ -70,8 +70,9 @@ export class TasksView extends ItemView {
     if (task.due) meta.createSpan({ text: `Jatuh tempo ${formatDate(task.due)}` });
     if (task.completed) meta.createSpan({ text: `Selesai ${formatDate(task.completed)}` });
     if (task.parent) meta.createSpan({ text: "Subtask" });
-    row.setAttribute("aria-label", `Edit ${task.title}`);
-    row.addEventListener("click", () => new TaskEditorModal(this.app, task, this.store.cache.favorites.includes(task.id), (title, notes, due, favorite) => void this.saveEdit(task, title, notes, due, favorite)).open());
+    const openEditor = () => new TaskEditorModal(this.app, task, this.store.cache.favorites.includes(task.id), (title, notes, due, favorite) => void this.saveEdit(task, title, notes, due, favorite)).open();
+    content.setAttribute("role", "button"); content.setAttribute("tabindex", "0"); content.setAttribute("aria-label", `Edit ${task.title}`); content.addEventListener("click", openEditor); content.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openEditor(); } });
+    checkbox.addEventListener("click", (event) => event.stopPropagation());
   }
   openAddTask(): void {
     if (!this.lists.length) { new Notice("Buat task list terlebih dahulu"); return; }
