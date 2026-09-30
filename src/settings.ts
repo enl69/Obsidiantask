@@ -37,13 +37,16 @@ export class ObsidiantaskSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Google Client Secret")
       .setDesc("Disimpan lokal di data plugin; jangan commit ke repository.")
-      .addText((text) => text
-        .setPlaceholder("GOCSPX-...")
-        .setValue(this.plugin.settings.clientSecret)
-        .onChange(async (value) => {
+      .addText((text) => {
+        text.inputEl.type = "password";
+        text.inputEl.autocomplete = "off";
+        text.setPlaceholder("GOCSPX-...")
+          .setValue(this.plugin.settings.clientSecret)
+          .onChange(async (value) => {
           this.plugin.settings.clientSecret = value.trim();
           await this.plugin.saveSettings();
-        }));
+        });
+      });
     const status = this.plugin.auth?.isConnected() ? "Connected" : "Not connected";
     new Setting(containerEl).setName("Status").setDesc(status);
     new Setting(containerEl)
