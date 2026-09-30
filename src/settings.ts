@@ -1,5 +1,6 @@
 import { Notice, PluginSettingTab, Setting } from "obsidian";
 import type ObsidiantaskPlugin from "./main";
+import { ListManagerModal } from "./list-manager";
 
 export interface ObsidiantaskSettings {
   clientId: string;
@@ -44,6 +45,12 @@ export class ObsidiantaskSettingTab extends PluginSettingTab {
         }));
     const status = this.plugin.auth?.isConnected() ? "Connected" : "Not connected";
     new Setting(containerEl).setName("Status").setDesc(status);
+    new Setting(containerEl)
+      .setName("Task lists")
+      .setDesc("Atur list yang ditampilkan, tambah, rename, atau hapus list Google Tasks.")
+      .addButton((button) => button
+        .setButtonText("Manage lists")
+        .onClick(() => this.plugin.openListManager()));
     new Setting(containerEl)
       .setName("Google account")
       .setDesc("Hubungkan plugin dengan Google Tasks.")

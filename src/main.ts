@@ -3,6 +3,7 @@ import { GoogleTasksAuth, type TokenState } from "./auth";
 import { GoogleTasksApi } from "./api";
 import { DEFAULT_SETTINGS, ObsidiantaskSettingTab, type ObsidiantaskSettings } from "./settings";
 import { TaskStore } from "./store";
+import { ListManagerModal } from "./list-manager";
 import { TasksView, VIEW_TYPE } from "./view";
 
 export default class ObsidiantaskPlugin extends Plugin {
@@ -57,6 +58,14 @@ export default class ObsidiantaskPlugin extends Plugin {
     await this.saveData(this.settings);
     this.createAuth();
     this.api = new GoogleTasksApi(this.auth!);
+  }
+
+  openListManager(): void {
+    if (!this.api || !this.store) return;
+    new ListManagerModal(this.app, this.api, this.store, async () => {
+      const view = this.app.workspace.getLeavesOfType(VIEW_TYPE)[0]?.view;
+      if (view instanceof TasksView) await view.refresh();
+    }).open();
   }
 
   async activateView(): Promise<void> {
