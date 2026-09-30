@@ -63,10 +63,31 @@ export class TasksView extends ItemView {
     if (task.notes) content.createDiv({ cls: "obsidiantask-task-notes", text: task.notes });
     const meta = content.createDiv({ cls: "obsidiantask-task-meta" });
     if (task.due) meta.createSpan({ text: `Jatuh tempo ${formatDate(task.due)}` });
+    if (task.completed) meta.createSpan({ text: `Selesai ${formatDate(task.completed)}` });
     if (task.parent) meta.createSpan({ text: "Subtask" });
     const favorite = row.createEl("button", { text: this.store.cache.favorites.includes(task.id) ? "★" : "☆" }); favorite.setAttribute("aria-label", "Favorite"); favorite.addEventListener("click", () => void this.toggleFavorite(task.id));
+    const edit = row.createEl("button", { text: "⋯" }); edit.setAttribute("aria-label", "Edit task"); edit.addEventListener("click", () => this.renderEditor(row, task));
   }
-  private async addTask(list: TaskList, title: string): Promise<void> { try { const task = await this.api.insertTask(list.id, title); await this.store.setTasks(list.id, [...(this.store.cache.tasks[list.id] ?? []), task]); this.render(); } catch (error) { new Notice(error instanceof Error ? error.message : "Gagal menambah task"); } }
+  private renderEditor(row: HTMLElement, task: Task): void {
+    const editor = row.createDiv({ cls: "obsidiantask-editor" });
+    const title = editor.createEl("input", { type: "text", value: task.title, placeholder: "Judul" });
+    const notes = editor.createEl("textarea", { placeholder: "Deskripsi / catatan" }); notes.value = task.notes ?? "";
+    const due = editor.createEl("input", { type: "date" }); due.value = task.due ? task.due.slice(0, 10) : "";
+    const save = editor.createEl("button", { text: "Simpan" });
+    save.addEventListener("click", () => void this.saveEdit(task, title.value.trim(), notes.value, due.value));
+  }
+  private async saveEdit(task: Task, title: string, notes: string, due: string): Promise<void> {
+    if (!title) return;
+    try {
+      const updated = await this.api.patchTask(task, { title, notes, due: due ? `${due}T00:00:00.000Z` : undefined });
+      await this.store.setTasks(task.listId, (this.store.cache.tasks[task.listId] ?? []).map((item) => item.id === task.id ? updated : item));
+      this.render();
+    } catch (error) { new Notice(error instanceof Error ? error.message : "Gagal menyimpan task"); }
+  }
+  private async addTask(list: TaskList, title: string): Promise<void> {
+    try { const task = await this.api.insertTask(list.id, title); await this.store.setTasks(list.id, [...(this.store.cache.tasks[list.id] ?? []), task]); this.render(); }
+    catch (error) { new Notice(error instanceof Error ? error.message : "Gagal menambah task"); }
+  }
   private async toggleTask(task: Task, completed: boolean): Promise<void> { try { const updated = await this.api.patchTask(task, { status: completed ? "completed" : "needsAction" }); await this.store.setTasks(task.listId, (this.store.cache.tasks[task.listId] ?? []).map((item) => item.id === task.id ? updated : item)); this.render(); } catch (error) { new Notice(error instanceof Error ? error.message : "Gagal mengubah task"); await this.refresh(); } }
   private async toggleFavorite(id: string): Promise<void> { const favorites = this.store.cache.favorites.includes(id) ? this.store.cache.favorites.filter((item) => item !== id) : [...this.store.cache.favorites, id]; this.store.cache.favorites = favorites; await this.store.persist(); this.render(); }
   private activeCount(): number { return Object.values(this.store.cache.tasks).flat().filter((task) => task.status !== "completed").length; }
