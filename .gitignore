@@ -2,3 +2,5 @@ node_modules/
 .DS_Store
 test/entry.bundle.cjs
 data.json
+main.js
+styles.css

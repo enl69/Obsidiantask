@@ -1,6 +1,6 @@
-# Obsidiantask
+# TaskBridge
 
-Obsidian plugin untuk mengelola Google Tasks dari side panel. Two-way sync dengan Google Tasks API.
+Plugin untuk mengelola Google Tasks dari side panel. Two-way sync dengan Google Tasks API.
 
 Status: **Fase 0 — OAuth spike** (lihat execution plan).
 
