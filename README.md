@@ -17,6 +17,6 @@ npm run dev        # watch mode
 npm test           # unit test (esbuild bundle + node)
 ```
 
-Install ke vault: copy `main.js`, `manifest.json`, `styles.css` ke `<vault>/.obsidian/plugins/obsidiantask/`.
+Install ke vault: copy `main.js`, `manifest.json`, `styles.css` ke `<vault>/.obsidian/plugins/taskbridge/`.
 
 Desktop-only (OAuth loopback memakai Node HTTP server).
