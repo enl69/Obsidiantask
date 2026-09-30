@@ -1,7 +1,7 @@
 {
   "id": "taskbridge",
   "name": "TaskBridge",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "minAppVersion": "1.7.2",
   "description": "Manage Google Tasks from a side panel with two-way synchronization.",
   "author": "enl69",
