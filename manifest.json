@@ -1,7 +1,7 @@
 {
   "id": "taskbridge",
-  "name": "Obsidiantask",
-  "version": "0.1.1",
+  "name": "TaskBridge",
+  "version": "0.1.2",
   "minAppVersion": "1.7.2",
   "description": "Manage Google Tasks from a side panel in Obsidian. Two-way sync with Google Tasks.",
   "author": "enl69",

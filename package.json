@@ -1,6 +1,6 @@
 {
   "name": "obsidiantask",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Obsidian plugin: manage Google Tasks from a side panel",
   "main": "main.js",
   "scripts": {
