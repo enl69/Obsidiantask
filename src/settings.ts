@@ -1,4 +1,5 @@
 import { Notice, PluginSettingTab, Setting } from "obsidian";
+import { shell } from "electron";
 import type ObsidiantaskPlugin from "./main";
 import { ListManagerModal } from "./list-manager";
 
@@ -51,6 +52,13 @@ export class ObsidiantaskSettingTab extends PluginSettingTab {
       .addButton((button) => button
         .setButtonText("Manage lists")
         .onClick(() => this.plugin.openListManager()));
+    const support = containerEl.createDiv({ cls: "obsidiantask-support" });
+    support.createEl("h3", { text: "Support development" });
+    support.createEl("p", { text: "If you find Obsidiantask useful, please consider supporting its continued development." });
+    const supportActions = support.createDiv({ cls: "obsidiantask-support-actions" });
+    const coffee = supportActions.createEl("button", { text: "☕ Buy me a coffee" });
+    coffee.addEventListener("click", () => void shell.openExternal("https://buymeacoffee.com/enl69"));
+
     new Setting(containerEl)
       .setName("Google account")
       .setDesc("Hubungkan plugin dengan Google Tasks.")
