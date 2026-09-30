@@ -3,6 +3,7 @@ import type { GoogleTasksApi, Task, TaskList } from "./api";
 import type { TaskStore } from "./store";
 import { TaskEditorModal } from "./task-editor";
 import { AddListModal, AddTaskModal } from "./create-modals";
+import { SearchModal } from "./search-modal";
 
 export const VIEW_TYPE = "obsidiantask-view";
 
@@ -10,7 +11,7 @@ export class TasksView extends ItemView {
   private lists: TaskList[] = [];
   private busy = false;
   private readonly collapsed = new Set<string>();
-  private showCompleted = false;
+  private readonly expandedCompleted = new Set<string>();
   private filter = "";
   constructor(leaf: WorkspaceLeaf, private readonly api: GoogleTasksApi, private readonly store: TaskStore) { super(leaf); }
   getViewType(): string { return VIEW_TYPE; }
@@ -38,19 +39,16 @@ export class TasksView extends ItemView {
     const header = root.createDiv({ cls: "obsidiantask-header" });
     const title = header.createDiv({ cls: "obsidiantask-title" }); title.createEl("h2", { text: "Tasks" }); title.createSpan({ cls: "obsidiantask-count", text: `${this.activeCount()} aktif` });
     const actions = header.createDiv({ cls: "obsidiantask-actions" });
-    const search = actions.createEl("input", { type: "search", placeholder: "Cari task…" }); search.value = this.filter; search.addEventListener("input", () => { this.filter = search.value; this.render(); });
+    const search = actions.createEl("button", { text: "⌕" }); search.setAttribute("aria-label", "Cari task"); search.addEventListener("click", () => new SearchModal(this.app, this.filter, (value) => { this.filter = value; this.render(); }).open());
     const add = actions.createEl("button", { text: "+" }); add.setAttribute("aria-label", "Tambah task"); add.addEventListener("click", () => this.openAddTask());
-    const list = actions.createEl("button", { text: "List +" }); list.addEventListener("click", () => this.openAddList());
+    const list = actions.createEl("button", { text: "+ List" }); list.setAttribute("aria-label", "Tambah list"); list.addEventListener("click", () => this.openAddList());
     const refresh = actions.createEl("button", { text: "↻" }); refresh.setAttribute("aria-label", "Refresh task"); refresh.addEventListener("click", () => void this.refresh());
     for (const list of this.lists) this.renderList(root, list);
     if (!this.lists.length) root.createDiv({ cls: "obsidiantask-empty", text: "Belum ada task list di Google Tasks." });
-    const completedToggle = root.createDiv({ cls: "obsidiantask-completed-toggle" });
-    const completedCount = Object.values(this.store.cache.tasks).flat().filter((task) => task.status === "completed").length;
-    const completedButton = completedToggle.createEl("button", { text: `Completed (${completedCount})` }); completedButton.addEventListener("click", () => { this.showCompleted = !this.showCompleted; this.render(); });
   }
   private renderList(root: HTMLElement, list: TaskList): void {
     const all = this.store.cache.tasks[list.id] ?? [];
-    const visible = all.filter((task) => (this.showCompleted || task.status !== "completed") && (!this.filter || `${task.title} ${task.notes ?? ""}`.toLowerCase().includes(this.filter.toLowerCase())));
+    const visible = all.filter((task) => (this.expandedCompleted.has(list.id) || task.status !== "completed") && (!this.filter || `${task.title} ${task.notes ?? ""}`.toLowerCase().includes(this.filter.toLowerCase())));
     const section = root.createDiv({ cls: "obsidiantask-list" });
     const heading = section.createDiv({ cls: "obsidiantask-list-heading" });
     const collapsed = this.collapsed.has(list.id);
@@ -58,7 +56,10 @@ export class TasksView extends ItemView {
     heading.createEl("h3", { text: list.title }); heading.createSpan({ cls: "obsidiantask-list-count", text: `${visible.length}` });
     if (collapsed) return;
     for (const task of visible) this.renderTask(section, task);
-    if (!visible.length) section.createDiv({ cls: "obsidiantask-list-empty", text: this.showCompleted ? "Tidak ada task." : "Semua task selesai." });
+    const completed = all.filter((task) => task.status === "completed");
+    const completedToggle = section.createDiv({ cls: "obsidiantask-completed-toggle" });
+    const completedButton = completedToggle.createEl("button", { text: `Completed (${completed.length})` }); completedButton.addEventListener("click", () => { this.expandedCompleted.has(list.id) ? this.expandedCompleted.delete(list.id) : this.expandedCompleted.add(list.id); this.render(); });
+    if (!visible.length && !completed.length) section.createDiv({ cls: "obsidiantask-list-empty", text: "Belum ada task." });
   }
   private renderTask(root: HTMLElement, task: Task): void {
     const row = root.createDiv({ cls: `obsidiantask-task ${task.status === "completed" ? "is-completed" : ""}` });
