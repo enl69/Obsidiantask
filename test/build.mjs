@@ -14,6 +14,7 @@ await esbuild.build({
   external: [],
   alias: {
     obsidian: path.join(__dirname, "obsidian-mock.ts"),
+    electron: path.join(__dirname, "electron-mock.ts"),
   },
   logLevel: "warning",
 });
