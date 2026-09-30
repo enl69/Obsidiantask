@@ -4,6 +4,7 @@ import type { TaskStore } from "./store";
 import { TaskEditorModal } from "./task-editor";
 import { AddListModal, AddTaskModal } from "./create-modals";
 import { SearchModal } from "./search-modal";
+import { ListManagerModal } from "./list-manager";
 
 export const VIEW_TYPE = "obsidiantask-view";
 
@@ -41,9 +42,8 @@ export class TasksView extends ItemView {
     const actions = header.createDiv({ cls: "obsidiantask-actions" });
     const search = actions.createEl("button", { text: "⌕" }); search.setAttribute("aria-label", "Cari task"); search.addEventListener("click", () => new SearchModal(this.app, this.filter, (value) => { this.filter = value; this.render(); }).open());
     const add = actions.createEl("button", { text: "+" }); add.setAttribute("aria-label", "Tambah task"); add.addEventListener("click", () => this.openAddTask());
-    const list = actions.createEl("button", { text: "+ List" }); list.setAttribute("aria-label", "Tambah list"); list.addEventListener("click", () => this.openAddList());
     const refresh = actions.createEl("button", { text: "↻" }); refresh.setAttribute("aria-label", "Refresh task"); refresh.addEventListener("click", () => void this.refresh());
-    for (const list of this.lists) this.renderList(root, list);
+    for (const list of this.lists.filter((item) => this.store.cache.visibleLists.includes(item.id))) this.renderList(root, list);
     if (!this.lists.length) root.createDiv({ cls: "obsidiantask-empty", text: "Belum ada task list di Google Tasks." });
   }
   private renderList(root: HTMLElement, list: TaskList): void {
@@ -62,7 +62,7 @@ export class TasksView extends ItemView {
     if (!visible.length && !completed.length) section.createDiv({ cls: "obsidiantask-list-empty", text: "Belum ada task." });
   }
   private renderTask(root: HTMLElement, task: Task): void {
-    const row = root.createDiv({ cls: `obsidiantask-task ${task.status === "completed" ? "is-completed" : ""}` });
+    const row = root.createEl("button", { cls: `obsidiantask-task ${task.status === "completed" ? "is-completed" : ""}` });
     const checkbox = row.createEl("input", { type: "checkbox" }); checkbox.checked = task.status === "completed"; checkbox.addEventListener("change", () => void this.toggleTask(task, checkbox.checked));
     const content = row.createDiv({ cls: "obsidiantask-task-content" }); content.createDiv({ cls: "obsidiantask-task-title", text: task.title || "Tanpa judul" });
     if (task.notes) content.createDiv({ cls: "obsidiantask-task-notes", text: task.notes });
@@ -70,23 +70,21 @@ export class TasksView extends ItemView {
     if (task.due) meta.createSpan({ text: `Jatuh tempo ${formatDate(task.due)}` });
     if (task.completed) meta.createSpan({ text: `Selesai ${formatDate(task.completed)}` });
     if (task.parent) meta.createSpan({ text: "Subtask" });
-    const favorite = row.createEl("button", { text: this.store.cache.favorites.includes(task.id) ? "★" : "☆" }); favorite.setAttribute("aria-label", "Favorite"); favorite.addEventListener("click", () => void this.toggleFavorite(task.id));
-    const edit = row.createEl("button", { text: "⋯" }); edit.setAttribute("aria-label", "Edit task"); edit.addEventListener("click", () => new TaskEditorModal(this.app, task, (title, notes, due) => void this.saveEdit(task, title, notes, due)).open());
+    row.setAttribute("aria-label", `Edit ${task.title}`);
+    row.addEventListener("click", () => new TaskEditorModal(this.app, task, this.store.cache.favorites.includes(task.id), (title, notes, due, favorite) => void this.saveEdit(task, title, notes, due, favorite)).open());
   }
   openAddTask(): void {
     if (!this.lists.length) { new Notice("Buat task list terlebih dahulu"); return; }
     new AddTaskModal(this.app, this.lists, (listId, title, notes, due) => void this.addTask(listId, title, notes, due)).open();
   }
-  private openAddList(): void { new AddListModal(this.app, (title) => void this.addTaskList(title)).open(); }
-  private async addTaskList(title: string): Promise<void> {
-    try { const list = await this.api.insertTaskList(title); this.lists.push(list); await this.store.replace(this.lists, Object.values(this.store.cache.tasks).flat()); this.render(); }
-    catch (error) { new Notice(error instanceof Error ? error.message : "Gagal menambah list"); }
-  }
-  private async saveEdit(task: Task, title: string, notes: string, due: string): Promise<void> {
+  openListManager(): void { new ListManagerModal(this.app, this.api, this.store, async () => { this.lists = this.store.cache.lists; this.render(); }).open(); }
+  private async saveEdit(task: Task, title: string, notes: string, due: string, favorite: boolean): Promise<void> {
     if (!title) return;
     try {
       const updated = await this.api.patchTask(task, { title, notes, due: due ? `${due}T00:00:00.000Z` : undefined });
       await this.store.setTasks(task.listId, (this.store.cache.tasks[task.listId] ?? []).map((item) => item.id === task.id ? updated : item));
+      this.store.cache.favorites = favorite ? [...new Set([...this.store.cache.favorites, task.id])] : this.store.cache.favorites.filter((id) => id !== task.id);
+      await this.store.persist();
       this.render();
     } catch (error) { new Notice(error instanceof Error ? error.message : "Gagal menyimpan task"); }
   }

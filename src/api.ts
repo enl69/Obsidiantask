@@ -12,6 +12,14 @@ export class GoogleTasksApi {
     return this.request<TaskList>("/users/@me/lists", { method: "POST", body: JSON.stringify({ title }) });
   }
 
+  async patchTaskList(list: TaskList, title: string): Promise<TaskList> {
+    return this.request<TaskList>(`/users/@me/lists/${encodeURIComponent(list.id)}`, { method: "PATCH", body: JSON.stringify({ title }) });
+  }
+
+  async deleteTaskList(list: TaskList): Promise<void> {
+    await this.request<void>(`/users/@me/lists/${encodeURIComponent(list.id)}`, { method: "DELETE" });
+  }
+
   async listTaskLists(): Promise<TaskList[]> {
     const result: TaskList[] = [];
     let pageToken: string | undefined;

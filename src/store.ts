@@ -1,10 +1,10 @@
 import type { Task, TaskList } from "./api";
 
-export interface TaskCache { lists: TaskList[]; tasks: Record<string, Task[]>; favorites: string[]; }
-export const EMPTY_CACHE: TaskCache = { lists: [], tasks: {}, favorites: [] };
+export interface TaskCache { lists: TaskList[]; tasks: Record<string, Task[]>; favorites: string[]; visibleLists: string[]; }
+export const EMPTY_CACHE: TaskCache = { lists: [], tasks: {}, favorites: [], visibleLists: [] };
 
 export class TaskStore {
-  cache: TaskCache = { lists: [], tasks: {}, favorites: [] };
+  cache: TaskCache = { lists: [], tasks: {}, favorites: [], visibleLists: [] };
   constructor(private readonly load: () => Promise<unknown>, private readonly save: (value: TaskCache) => Promise<void>) {}
   async init(): Promise<void> {
     const value = await this.load();
@@ -13,7 +13,7 @@ export class TaskStore {
   async replace(lists: TaskList[], tasks: Task[]): Promise<void> {
     const grouped: Record<string, Task[]> = {};
     for (const task of tasks) (grouped[task.listId] ??= []).push(task);
-    this.cache = { lists, tasks: grouped, favorites: this.cache.favorites ?? [] };
+    this.cache = { lists, tasks: grouped, favorites: this.cache.favorites ?? [], visibleLists: this.cache.visibleLists?.length ? this.cache.visibleLists.filter((id) => lists.some((list) => list.id === id)) : lists.map((list) => list.id) };
     await this.save(this.cache);
   }
   async setTasks(listId: string, tasks: Task[]): Promise<void> {
