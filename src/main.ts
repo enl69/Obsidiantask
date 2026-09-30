@@ -27,6 +27,15 @@ export default class ObsidiantaskPlugin extends Plugin {
       name: "Open Obsidiantask",
       callback: () => void this.activateView(),
     });
+    this.addCommand({
+      id: "create-task",
+      name: "Create task",
+      callback: () => {
+        const view = this.app.workspace.getLeavesOfType(VIEW_TYPE)[0]?.view;
+        if (view instanceof TasksView) view.openAddTask();
+        else void this.activateView();
+      },
+    });
   }
 
   onunload(): void {}

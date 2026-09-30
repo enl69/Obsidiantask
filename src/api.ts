@@ -8,6 +8,10 @@ interface Page<T> { items?: T[]; nextPageToken?: string; nextSyncToken?: string;
 export class GoogleTasksApi {
   constructor(private readonly auth: GoogleTasksAuth) {}
 
+  async insertTaskList(title: string): Promise<TaskList> {
+    return this.request<TaskList>("/users/@me/lists", { method: "POST", body: JSON.stringify({ title }) });
+  }
+
   async listTaskLists(): Promise<TaskList[]> {
     const result: TaskList[] = [];
     let pageToken: string | undefined;
