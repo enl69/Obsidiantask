@@ -1,7 +1,6 @@
 import { Notice, PluginSettingTab, Setting } from "obsidian";
 import { shell } from "electron";
 import type ObsidiantaskPlugin from "./main";
-import { ListManagerModal } from "./list-manager";
 
 export interface ObsidiantaskSettings {
   clientId: string;

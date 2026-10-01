@@ -3,4 +3,4 @@ node_modules/
 test/entry.bundle.cjs
 data.json
 main.js
-styles.css
+

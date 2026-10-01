@@ -1,8 +1,8 @@
-import { ItemView, Modal, Notice, WorkspaceLeaf } from "obsidian";
+import { ItemView, Notice, WorkspaceLeaf } from "obsidian";
 import type { GoogleTasksApi, Task, TaskList } from "./api";
 import type { TaskStore } from "./store";
 import { TaskEditorModal } from "./task-editor";
-import { AddListModal, AddTaskModal } from "./create-modals";
+import { AddTaskModal } from "./create-modals";
 import { SearchModal } from "./search-modal";
 import { ListManagerModal } from "./list-manager";
 
