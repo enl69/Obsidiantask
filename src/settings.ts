@@ -23,7 +23,6 @@ export class ObsidiantaskSettingTab extends PluginSettingTab {
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
-    new Setting(containerEl).setName("TaskBridge").setHeading();
     new Setting(containerEl)
       .setName("Google Client ID")
       .setDesc("OAuth Desktop app Client ID dari Google Cloud Console.")
